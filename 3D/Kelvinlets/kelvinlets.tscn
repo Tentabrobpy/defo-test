@@ -1,0 +1,103 @@
+[gd_scene load_steps=14 format=3 uid="uid://bru63t2vf6bqb"]
+
+[ext_resource type="Shader" uid="uid://dkieues2h82k6" path="res://3D/Kelvinlets/kelvinlet.gdshader" id="1_8h6db"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_8h6db"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wmpr0"]
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(1, 0, 0, 1)
+
+[sub_resource type="GDScript" id="GDScript_wmpr0"]
+script/source = "@tool
+extends MeshInstance3D
+
+@export var deformer : MeshInstance3D
+
+func _process(_delta):
+	var mat = deformer.get_active_material(0) as ShaderMaterial
+	mat.set_shader_parameter(\"origin\", global_position)
+"
+
+[sub_resource type="SphereMesh" id="SphereMesh_whrg3"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g36d3"]
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0, 0, 1, 1)
+
+[sub_resource type="GDScript" id="GDScript_8h6db"]
+script/source = "@tool
+extends Node3D
+
+@export var deformer : MeshInstance3D
+@export var origin : Node3D
+
+func _process(_delta):
+	var mat = deformer.get_active_material(0) as ShaderMaterial
+	mat.set_shader_parameter(\"force\", global_position - origin.global_position)
+"
+
+[sub_resource type="BoxMesh" id="BoxMesh_8h6db"]
+subdivide_width = 64
+subdivide_height = 64
+subdivide_depth = 64
+
+[sub_resource type="Gradient" id="Gradient_i0mel"]
+offsets = PackedFloat32Array(0, 0.2, 0.4, 0.6, 0.8, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 1)
+metadata/_snap_enabled = true
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_8h6db"]
+gradient = SubResource("Gradient_i0mel")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_whrg3"]
+render_priority = 0
+shader = ExtResource("1_8h6db")
+shader_parameter/force = Vector3(-2.72742, -4.04444, -3.57883)
+shader_parameter/origin = Vector3(5.68854, -0.0695395, 4.82506)
+shader_parameter/brush_size = 2.06
+shader_parameter/volume_preservation = 0.5
+shader_parameter/gradient = SubResource("GradientTexture1D_8h6db")
+
+[sub_resource type="BoxMesh" id="BoxMesh_wmpr0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8h6db"]
+transparency = 1
+no_depth_test = true
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 0.105882)
+
+[node name="Scene" type="Node3D"]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.866024, -0.433016, 0.250001, 0, 0.499998, 0.866026, -0.500003, 0.749999, -0.43301, -0.0441904, 0, -20.116)
+visible = false
+
+[node name="Origin" type="MeshInstance3D" parent="." node_paths=PackedStringArray("deformer")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.68854, -0.0695395, 4.82506)
+mesh = SubResource("SphereMesh_8h6db")
+surface_material_override/0 = SubResource("StandardMaterial3D_wmpr0")
+script = SubResource("GDScript_wmpr0")
+deformer = NodePath("../Deformer")
+
+[node name="Target" type="MeshInstance3D" parent="." node_paths=PackedStringArray("deformer", "origin")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.96112, -4.11398, 1.24623)
+mesh = SubResource("SphereMesh_whrg3")
+surface_material_override/0 = SubResource("StandardMaterial3D_g36d3")
+script = SubResource("GDScript_8h6db")
+deformer = NodePath("../Deformer")
+origin = NodePath("../Origin")
+
+[node name="Deformer" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -5, 0)
+mesh = SubResource("BoxMesh_8h6db")
+surface_material_override/0 = SubResource("ShaderMaterial_whrg3")
+metadata/_edit_lock_ = true
+
+[node name="Surface" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, 0, -5, 0)
+mesh = SubResource("BoxMesh_wmpr0")
+surface_material_override/0 = SubResource("StandardMaterial3D_8h6db")
+metadata/_edit_lock_ = true
